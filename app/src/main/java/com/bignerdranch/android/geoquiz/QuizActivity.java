@@ -49,6 +49,14 @@ public class QuizActivity extends AppCompatActivity {
         mNextButton = (Button) findViewById(R.id.next_button);
         mCheatButton = (Button) findViewById(R.id.cheat_button);
 
+        mQuestionTextView.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+                mIsCheater = false;
+                updateQuestion();
+            }
+        });
+
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 checkAnswer(true);
@@ -147,7 +155,6 @@ public class QuizActivity extends AppCompatActivity {
                 messageResId = R.string.incorrect_toast;
             }
         }
-
 
         Toast.makeText(QuizActivity.this, messageResId,
                 Toast.LENGTH_SHORT).show();
