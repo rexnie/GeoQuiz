@@ -10,13 +10,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
     private static final int REQUEST_CODE_CHEAT = 0;
     private Button mTrueButton;
     private Button mFalseButton;
     private Button mNextButton;
+    private Button mPrevButton;
     private Button mCheatButton;
     private TextView mQuestionTextView;
     private boolean mIsCheater;
@@ -47,44 +48,17 @@ public class QuizActivity extends AppCompatActivity {
         mTrueButton = (Button) findViewById(R.id.true_button);
         mFalseButton = (Button) findViewById(R.id.false_button);
         mNextButton = (Button) findViewById(R.id.next_button);
+        mPrevButton = (Button) findViewById(R.id.prev_button);
         mCheatButton = (Button) findViewById(R.id.cheat_button);
 
-        mQuestionTextView.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
-                mIsCheater = false;
-                updateQuestion();
-            }
-        });
-
-        mTrueButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                checkAnswer(true);
-            }
-        });
-
-        mFalseButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                checkAnswer(false);
-            }
-        });
-
-        mNextButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
-                mIsCheater = false;
-                updateQuestion();
-            }
-        });
-
-        mCheatButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent i = CheatActivity.newIntent(QuizActivity.this,
-                        mQuestionBank[mCurrentIndex].isAnswerTrue());
-                startActivityForResult(i, REQUEST_CODE_CHEAT);
-            }
-        });
+        mQuestionTextView.setOnClickListener(this);
+        mTrueButton.setOnClickListener(this);
+        mFalseButton.setOnClickListener(this);
+        mNextButton.setOnClickListener(this);
+        mPrevButton.setOnClickListener(this);
+        mCheatButton.setOnClickListener(this);
         updateQuestion();
+        initButtonState();
     }
 
     @Override
@@ -158,5 +132,67 @@ public class QuizActivity extends AppCompatActivity {
 
         Toast.makeText(QuizActivity.this, messageResId,
                 Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.true_button:
+                checkAnswer(true);
+                break;
+            case R.id.false_button:
+                checkAnswer(false);
+                break;
+            case R.id.next_button:
+            case R.id.question_text_view:
+                updateCurrentIndex(true);
+                mIsCheater = false;
+                updateQuestion();
+                break;
+            case R.id.prev_button:
+                updateCurrentIndex(false);
+                mIsCheater = false;
+                updateQuestion();
+                break;
+            case R.id.cheat_button:
+                Intent i = CheatActivity.newIntent(QuizActivity.this,
+                        mQuestionBank[mCurrentIndex].isAnswerTrue());
+                startActivityForResult(i, REQUEST_CODE_CHEAT);
+                break;
+            default:
+                Log.e(TAG, "unknown view ID");
+                break;
+        }
+
+    }
+
+    private void updateCurrentIndex(boolean isNext) {
+        if (isNext == true) {
+            //Goto next question
+            if (mCurrentIndex < mQuestionBank.length - 1) {
+                mCurrentIndex++;
+                mPrevButton.setEnabled(true);
+                if (mCurrentIndex == mQuestionBank.length - 1) {
+                    mNextButton.setEnabled(false);
+                }
+            }
+        } else {
+            //Goto previous question
+            if (mCurrentIndex > 0) {
+                mCurrentIndex--;
+                mNextButton.setEnabled(true);
+                if (mCurrentIndex == 0) {
+                    mPrevButton.setEnabled(false);
+                }
+            }
+        }
+    }
+
+    private void initButtonState() {
+        if (mCurrentIndex == 0) {
+            mPrevButton.setEnabled(false);
+        } else if (mCurrentIndex == mQuestionBank.length - 1) {
+            mNextButton.setEnabled(false);
+        }
     }
 }
