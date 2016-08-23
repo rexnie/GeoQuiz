@@ -14,6 +14,7 @@ import android.widget.Toast;
 public class QuizActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
+    private static final String KEY_IS_CHEATER = "is_cheater";
     private static final int REQUEST_CODE_CHEAT = 0;
     private Button mTrueButton;
     private Button mFalseButton;
@@ -23,7 +24,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private TextView mQuestionTextView;
     private ImageButton mNextImageButton;
     private ImageButton mPrevImageButton;
-    private boolean mIsCheater;
 
     private Question[] mQuestionBank = new Question[]{
             new Question(R.string.question_oceans, true),
@@ -33,6 +33,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             new Question(R.string.question_asia, true),
     };
     private int mCurrentIndex = 0;
+    private int NUM_QUESTIONS = mQuestionBank.length;
+    private boolean mIsCheater[] = new boolean[NUM_QUESTIONS];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +44,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "onCreate:savedInstanceState is null");
         } else {
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
-            Log.d(TAG, "onCreate:savedInstanceState is not null,mCurrentIndex=" + mCurrentIndex);
+            mIsCheater = savedInstanceState.getBooleanArray(KEY_IS_CHEATER);
+            Log.d(TAG, "onCreate:savedInstanceState is not null,mCurrentIndex=" + mCurrentIndex
+                    + ",mIsCheater=" + mIsCheater);
         }
         setContentView(R.layout.activity_quiz);
 
@@ -100,6 +104,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult,requestCode=" + requestCode + ",resultCode=" + resultCode + ",intent=" + data);
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
@@ -107,7 +112,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             if (data == null) {
                 return;
             }
-            mIsCheater = CheatActivity.wasAnswerShown(data);
+            mIsCheater[mCurrentIndex] = CheatActivity.wasAnswerShown(data);
+            Log.d(TAG, "mIsCheater=" + mIsCheater[mCurrentIndex]);
         }
     }
 
@@ -116,6 +122,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         super.onSaveInstanceState(savedInstanceState);
         Log.d(TAG, "onSaveInstanceState is called");
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        savedInstanceState.putBooleanArray(KEY_IS_CHEATER, mIsCheater);
     }
 
     private void updateQuestion() {
@@ -127,7 +134,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
         int messageResId = 0;
 
-        if (mIsCheater) {
+        if (mIsCheater[mCurrentIndex]) {
             messageResId = R.string.judgment_toast;
         } else {
             if (userPressedTrue == answerIsTrue) {
@@ -154,13 +161,13 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.question_text_view:
             case R.id.next_image_button:
                 updateCurrentIndex(true);
-                mIsCheater = false;
+                resetIsCheaterCurrentIndex();
                 updateQuestion();
                 break;
             case R.id.prev_button:
             case R.id.prev_image_button:
                 updateCurrentIndex(false);
-                mIsCheater = false;
+                resetIsCheaterCurrentIndex();
                 updateQuestion();
                 break;
             case R.id.cheat_button:
@@ -194,6 +201,12 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                     setButtonEnabled(false, false);
                 }
             }
+        }
+    }
+
+    private void resetIsCheaterCurrentIndex() {
+        if (mIsCheater[mCurrentIndex] == false) {
+            mIsCheater[mCurrentIndex] = false;
         }
     }
 
