@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private Button mPrevButton;
     private Button mCheatButton;
     private TextView mQuestionTextView;
+    private ImageButton mNextImageButton;
+    private ImageButton mPrevImageButton;
     private boolean mIsCheater;
 
     private Question[] mQuestionBank = new Question[]{
@@ -50,6 +53,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mNextButton = (Button) findViewById(R.id.next_button);
         mPrevButton = (Button) findViewById(R.id.prev_button);
         mCheatButton = (Button) findViewById(R.id.cheat_button);
+        mNextImageButton = (ImageButton) findViewById(R.id.next_image_button);
+        mPrevImageButton = (ImageButton) findViewById(R.id.prev_image_button);
 
         mQuestionTextView.setOnClickListener(this);
         mTrueButton.setOnClickListener(this);
@@ -57,6 +62,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mNextButton.setOnClickListener(this);
         mPrevButton.setOnClickListener(this);
         mCheatButton.setOnClickListener(this);
+        mNextImageButton.setOnClickListener(this);
+        mPrevImageButton.setOnClickListener(this);
         updateQuestion();
         initButtonState();
     }
@@ -145,11 +152,13 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.next_button:
             case R.id.question_text_view:
+            case R.id.next_image_button:
                 updateCurrentIndex(true);
                 mIsCheater = false;
                 updateQuestion();
                 break;
             case R.id.prev_button:
+            case R.id.prev_image_button:
                 updateCurrentIndex(false);
                 mIsCheater = false;
                 updateQuestion();
@@ -171,18 +180,18 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             //Goto next question
             if (mCurrentIndex < mQuestionBank.length - 1) {
                 mCurrentIndex++;
-                mPrevButton.setEnabled(true);
+                setButtonEnabled(false, true);
                 if (mCurrentIndex == mQuestionBank.length - 1) {
-                    mNextButton.setEnabled(false);
+                    setButtonEnabled(true, false);
                 }
             }
         } else {
             //Goto previous question
             if (mCurrentIndex > 0) {
                 mCurrentIndex--;
-                mNextButton.setEnabled(true);
+                setButtonEnabled(true, true);
                 if (mCurrentIndex == 0) {
-                    mPrevButton.setEnabled(false);
+                    setButtonEnabled(false, false);
                 }
             }
         }
@@ -190,9 +199,19 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initButtonState() {
         if (mCurrentIndex == 0) {
-            mPrevButton.setEnabled(false);
+            setButtonEnabled(false, false);
         } else if (mCurrentIndex == mQuestionBank.length - 1) {
-            mNextButton.setEnabled(false);
+            setButtonEnabled(true, false);
+        }
+    }
+
+    private void setButtonEnabled(boolean next, boolean enabled) {
+        if (next) {
+            mNextButton.setEnabled(enabled);
+            mNextImageButton.setEnabled(enabled);
+        } else {
+            mPrevButton.setEnabled(enabled);
+            mPrevImageButton.setEnabled(enabled);
         }
     }
 }

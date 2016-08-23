@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical">
 
     <TextView
@@ -14,7 +15,6 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:orientation="horizontal">
 
         <Button
@@ -34,7 +34,6 @@
         android:id="@+id/cheat_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:text="@string/cheat_button" />
 
     <LinearLayout
@@ -61,14 +60,22 @@
 
     </LinearLayout>
 
-
-    <!--Button
-        android:id="@+id/next_button"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:drawableEnd="@drawable/arrow_right"
-        android:drawablePadding="4dp"
-        android:drawableRight="@drawable/arrow_right"
-        android:text="@string/next_button" /-->
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/prev_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_left" />
+
+        <ImageButton
+            android:id="@+id/next_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrow_right" />
+    </LinearLayout>
+
 </LinearLayout>
